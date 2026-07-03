@@ -1,0 +1,9 @@
+fastembed 
+python-dotenv 
+numpy
+qdrant-client
+python-frontmatter
+langchain-groq
+fastapi
+uvicorn
+pydantic
