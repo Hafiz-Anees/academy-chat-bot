@@ -39,8 +39,3 @@ def chat(req: ChatRequest):
     history.append({"role": "assistant", "content": reply})
     return ChatResponse(reply=reply)
 
-
-@app.get("/debug-env")
-def debug_env():
-    from config import QDRANT_URL
-    return {"qdrant_url_repr": repr(QDRANT_URL)}
