@@ -64,11 +64,6 @@ def verify_webhook(request: Request):
 @app.post("/webhook")
 async def receive_whatsapp(request: Request):
     data = await request.json()
-
-    print("=" * 60)
-    print(json.dumps(data, indent=2))
-    print("=" * 60)
-
     try:
         entry = data["entry"][0]
         changes = entry["changes"][0]
