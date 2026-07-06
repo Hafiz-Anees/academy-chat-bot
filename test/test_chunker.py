@@ -15,6 +15,8 @@ from ingestion.chunker import load_and_chunk
 
 def run():
     chunks = load_and_chunk()
+    files = sorted(set(c["source_file"] for c in chunks))
+    print(files)
     print(f"Loaded {len(chunks)} chunks from {len(set(c['category'] for c in chunks))} files")
 
     assert len(chunks) > 0, "No chunks produced — check data/academy_docs/ has .md files"
