@@ -5,6 +5,7 @@ from core.rag_chain import get_response
 from fastapi import Request
 import os
 from core.whatsapp import send_whatsapp_message
+import json
 app = FastAPI(title="Academy Admissions Agent API")
 
 # Allow your Streamlit frontend (any origin for now — restrict later to frontend's Render URL)
@@ -63,6 +64,10 @@ def verify_webhook(request: Request):
 @app.post("/webhook")
 async def receive_whatsapp(request: Request):
     data = await request.json()
+
+    print("=" * 60)
+    print(json.dumps(data, indent=2))
+    print("=" * 60)
 
     try:
         entry = data["entry"][0]
