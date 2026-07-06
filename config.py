@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "BAAI/bge-small-en-v1.5")
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL")
 EMBEDDING_DIM = 384
 
 QDRANT_URL = os.getenv("QDRANT_URL")
