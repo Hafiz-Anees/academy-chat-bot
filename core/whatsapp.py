@@ -1,11 +1,12 @@
 """Send messages via WhatsApp Cloud API."""
 import os
 import requests
-
+from dotenv import load_dotenv
+load_dotenv() 
 WHATSAPP_TOKEN = os.getenv("WHATSAPP_TOKEN")
 WHATSAPP_PHONE_NUMBER_ID = os.getenv("WHATSAPP_PHONE_NUMBER_ID")
 
-GRAPH_URL = f"https://graph.facebook.com/v21.0/{WHATSAPP_PHONE_NUMBER_ID}/messages"
+GRAPH_URL = f"https://graph.facebook.com/v25.0/{WHATSAPP_PHONE_NUMBER_ID}/messages"
 
 
 def send_whatsapp_message(to: str, body: str):
