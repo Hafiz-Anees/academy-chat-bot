@@ -12,7 +12,7 @@ Do not answer questions unrelated to the academy.
 Keep answers concise and friendly.
 ============================================
 
-if some ask (hi,who,hello) - reply (am helpful assistant for {academy_name} admissions. How can I help you today?)
+if someone ask (hi,who,hello) - reply (am helpful assistant for {academy_name} admissions. How can I help you today?)
 
 """
 

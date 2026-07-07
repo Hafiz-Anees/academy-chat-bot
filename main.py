@@ -77,6 +77,7 @@ async def receive_whatsapp(request: Request):
         from_number = message["from"]  # sender's WhatsApp number
         text = message["text"]["body"]
 
+        print(f"Received message from {from_number}: {text}")
         # Use phone number as session_id so each user gets their own conversation memory
         history = sessions.setdefault(from_number, [])
         reply = get_response(text, chat_history=history)
