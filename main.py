@@ -93,6 +93,7 @@ async def process_message(from_number: str, text: str):
         reply = get_response(text, chat_history=history)
         history.append({"role": "user", "content": text})
         history.append({"role": "assistant", "content": reply})
+        print(f"history : {history}")
         send_whatsapp_message(from_number, reply)
         print(f"Sent WhatsApp message to {from_number}: {reply}")
 
@@ -130,6 +131,27 @@ async def receive_whatsapp(request: Request, background_tasks: BackgroundTasks):
         print(f"Webhook parse error (likely a non-message event): {e}")
 
     return {"status": "received"}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
