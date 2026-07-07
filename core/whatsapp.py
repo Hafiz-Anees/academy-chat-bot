@@ -23,4 +23,5 @@ def send_whatsapp_message(to: str, body: str):
     }
     r = requests.post(GRAPH_URL, headers=headers, json=payload, timeout=15)
     r.raise_for_status()
+    print(f"Sent WhatsApp message to {to}: {body}")
     return r.json()
