@@ -8,6 +8,7 @@ WHATSAPP_PHONE_NUMBER_ID = os.getenv("WHATSAPP_PHONE_NUMBER_ID")
 
 GRAPH_URL = f"https://graph.facebook.com/v25.0/{WHATSAPP_PHONE_NUMBER_ID}/messages"
 
+"""For chat messages"""
 
 def send_whatsapp_message(to: str, body: str):
     """to: recipient phone number in international format, no '+' (e.g. '923001234567')"""
@@ -26,7 +27,7 @@ def send_whatsapp_message(to: str, body: str):
     return r.json()
 
 
-# for voice message
+"""For voice messages"""
 
 def get_media_url(media_id: str) -> str:
     """Step 1a: resolve a media_id (from an incoming voice message) into a
@@ -45,3 +46,38 @@ def download_media(media_id: str) -> bytes:
     r = requests.get(media_url, headers=headers, timeout=30)
     r.raise_for_status()
     return r.content
+
+
+
+def upload_media(audio_bytes: bytes, mime_type: str = "audio/mpeg") -> str:
+    """Uploads audio bytes to Meta, returns a media_id to use when sending."""
+    url = f"https://graph.facebook.com/v25.0/{WHATSAPP_PHONE_NUMBER_ID}/media"
+    headers = {"Authorization": f"Bearer {WHATSAPP_TOKEN}"}
+    files = {
+        "file": ("reply.mp3", audio_bytes, mime_type),
+    }
+    data = {
+        "messaging_product": "whatsapp",
+        "type": mime_type,
+    }
+    r = requests.post(url, headers=headers, files=files, data=data, timeout=30)
+    r.raise_for_status()
+    return r.json()["id"]
+
+
+def send_whatsapp_audio(to: str, audio_bytes: bytes):
+    """Uploads audio then sends it as a voice message."""
+    media_id = upload_media(audio_bytes)
+    headers = {
+        "Authorization": f"Bearer {WHATSAPP_TOKEN}",
+        "Content-Type": "application/json",
+    }
+    payload = {
+        "messaging_product": "whatsapp",
+        "to": to,
+        "type": "audio",
+        "audio": {"id": media_id},
+    }
+    r = requests.post(GRAPH_URL, headers=headers, json=payload, timeout=15)
+    r.raise_for_status()
+    return r.json()

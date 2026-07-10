@@ -1,10 +1,11 @@
-import asyncio
 from fastapi import FastAPI, Request, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from core.rag_chain import get_response
-from core.whatsapp import send_whatsapp_message , download_media
 import os
+
+from core.rag_chain import get_response
+from scripts.state import sessions, processed_message_ids
+from scripts.handlers import process_message, process_voice_message
 
 app = FastAPI(title="Academy Admissions Agent API")
 
@@ -14,30 +15,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Simple in-memory session store: {session_id: [{"role":..., "content":...}]}
-sessions: dict[str, list] = {}
-
-# Guard against Meta re-delivering the same webhook event
-processed_message_ids: set[str] = set()
-
-# One lock per user so their messages are handled in order, never concurrently
-user_locks: dict[str, asyncio.Lock] = {}
-
-
-# for voice message 
-
-async def test_download_voice(media_id: str):
-    from core.whatsapp import download_media
-    audio_bytes = download_media(media_id)
-    with open(f"test_voice_{media_id}.ogg", "wb") as f:
-        f.write(audio_bytes)
-    print(f"Downloaded voice note: {len(audio_bytes)} bytes, saved as test_voice_{media_id}.ogg")
-
-def get_user_lock(user_id: str) -> asyncio.Lock:
-    if user_id not in user_locks:
-        user_locks[user_id] = asyncio.Lock()
-    return user_locks[user_id]
 
 
 @app.on_event("startup")
@@ -81,7 +58,6 @@ def chat(req: ChatRequest):
 WHATSAPP_VERIFY_TOKEN = os.getenv("WHATSAPP_VERIFY_TOKEN")
 
 
-# --- Webhook verification (Meta calls this once when you set up the webhook) ---
 @app.get("/webhook")
 def verify_webhook(request: Request):
     params = request.query_params
@@ -94,20 +70,6 @@ def verify_webhook(request: Request):
     return {"error": "verification failed"}, 403
 
 
-async def process_message(from_number: str, text: str):
-    """Runs after the webhook has already ack'd Meta — safe to take as long as needed."""
-    lock = get_user_lock(from_number)
-    async with lock:
-        history = sessions.setdefault(from_number, [])
-        reply = get_response(text, chat_history=history)
-        history.append({"role": "user", "content": text})
-        history.append({"role": "assistant", "content": reply})
-        print(f"history : {history}")
-        send_whatsapp_message(from_number, reply)
-        print(f"Sent WhatsApp message to {from_number}: {reply}")
-
-
-# --- Incoming messages ---
 @app.post("/webhook")
 async def receive_whatsapp(request: Request, background_tasks: BackgroundTasks):
     data = await request.json()
@@ -117,34 +79,167 @@ async def receive_whatsapp(request: Request, background_tasks: BackgroundTasks):
         value = changes["value"]
 
         if "messages" not in value:
-            # Could be a status update (delivered/read) — ignore
             return {"status": "ignored"}
 
         message = value["messages"][0]
-        if message.get("type") == "audio":
-            media_id = message["audio"]["id"]
-            print(f"Received voice message from {message['from']}, media_id={media_id}")
-            background_tasks.add_task(test_download_voice, media_id)
-            return {"status": "received"}
+        msg_id = message["id"]
         from_number = message["from"]
-        text = message["text"]["body"]
-        msg_id = message["id"]  # WhatsApp's unique message ID
 
-        print(f"Received message from {from_number}: {text}")
-
-        # Guard against Meta re-delivering the same webhook event
         if msg_id in processed_message_ids:
             print(f"Duplicate message {msg_id} ignored.")
             return {"status": "duplicate_ignored"}
         processed_message_ids.add(msg_id)
 
-        # Ack Meta immediately — do the slow RAG/LLM work in the background
-        background_tasks.add_task(process_message, from_number, text)
+        # Handle voice messages first, since they don't have a "text" field
+        if message.get("type") == "audio":
+            media_id = message["audio"]["id"]
+            print(f"Received voice message from {from_number}, media_id={media_id}")
+            background_tasks.add_task(process_voice_message, from_number, media_id) # for voice messages
+            return {"status": "received"}
+
+        text = message["text"]["body"]
+        print(f"Received message from {from_number}: {text}")
+        background_tasks.add_task(process_message, from_number, text)  # for chat messages 
 
     except (KeyError, IndexError) as e:
         print(f"Webhook parse error (likely a non-message event): {e}")
 
     return {"status": "received"}
+
+
+
+# import asyncio
+# from fastapi import FastAPI, Request, BackgroundTasks
+# from fastapi.middleware.cors import CORSMiddleware
+# from pydantic import BaseModel
+# from core.rag_chain import get_response
+# from core.whatsapp import send_whatsapp_message
+# import os
+
+# app = FastAPI(title="Academy Admissions Agent API")
+
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
+
+# # Simple in-memory session store: {session_id: [{"role":..., "content":...}]}
+# sessions: dict[str, list] = {}
+
+# # Guard against Meta re-delivering the same webhook event
+# processed_message_ids: set[str] = set()
+
+# # One lock per user so their messages are handled in order, never concurrently
+# user_locks: dict[str, asyncio.Lock] = {}
+
+# def get_user_lock(user_id: str) -> asyncio.Lock:
+#     if user_id not in user_locks:
+#         user_locks[user_id] = asyncio.Lock()
+#     return user_locks[user_id]
+
+
+# @app.on_event("startup")
+# async def startup_event():
+#     from core.embeddings import get_embedder
+#     from core.vectorstore import get_client, ensure_collection
+
+#     print("Warming up embedding model...")
+#     get_embedder()
+
+#     print("Connecting to Qdrant...")
+#     get_client()
+#     ensure_collection()
+
+#     print("Startup warm-up complete.")
+
+
+# class ChatRequest(BaseModel):
+#     session_id: str
+#     message: str
+
+
+# class ChatResponse(BaseModel):
+#     reply: str
+
+
+# @app.get("/health")
+# def health():
+#     return {"status": "ok"}
+
+
+# @app.post("/chat", response_model=ChatResponse)
+# def chat(req: ChatRequest):
+#     history = sessions.setdefault(req.session_id, [])
+#     reply = get_response(req.message, chat_history=history)
+#     history.append({"role": "user", "content": req.message})
+#     history.append({"role": "assistant", "content": reply})
+#     return ChatResponse(reply=reply)
+
+
+# WHATSAPP_VERIFY_TOKEN = os.getenv("WHATSAPP_VERIFY_TOKEN")
+
+
+# # --- Webhook verification (Meta calls this once when you set up the webhook) ---
+# @app.get("/webhook")
+# def verify_webhook(request: Request):
+#     params = request.query_params
+#     mode = params.get("hub.mode")
+#     token = params.get("hub.verify_token")
+#     challenge = params.get("hub.challenge")
+
+#     if mode == "subscribe" and token == WHATSAPP_VERIFY_TOKEN:
+#         return int(challenge)
+#     return {"error": "verification failed"}, 403
+
+
+# async def process_message(from_number: str, text: str):
+#     """Runs after the webhook has already ack'd Meta — safe to take as long as needed."""
+#     lock = get_user_lock(from_number)
+#     async with lock:
+#         history = sessions.setdefault(from_number, [])
+#         reply = get_response(text, chat_history=history)
+#         history.append({"role": "user", "content": text})
+#         history.append({"role": "assistant", "content": reply})
+#         print(f"history : {history}")
+#         send_whatsapp_message(from_number, reply)
+#         print(f"Sent WhatsApp message to {from_number}: {reply}")
+
+
+# # --- Incoming messages ---
+# @app.post("/webhook")
+# async def receive_whatsapp(request: Request, background_tasks: BackgroundTasks):
+#     data = await request.json()
+#     try:
+#         entry = data["entry"][0]
+#         changes = entry["changes"][0]
+#         value = changes["value"]
+
+#         if "messages" not in value:
+#             # Could be a status update (delivered/read) — ignore
+#             return {"status": "ignored"}
+
+#         message = value["messages"][0]
+#         from_number = message["from"]
+#         text = message["text"]["body"]
+#         msg_id = message["id"]  # WhatsApp's unique message ID
+
+#         print(f"Received message from {from_number}: {text}")
+
+#         # Guard against Meta re-delivering the same webhook event
+#         if msg_id in processed_message_ids:
+#             print(f"Duplicate message {msg_id} ignored.")
+#             return {"status": "duplicate_ignored"}
+#         processed_message_ids.add(msg_id)
+
+#         # Ack Meta immediately — do the slow RAG/LLM work in the background
+#         background_tasks.add_task(process_message, from_number, text)
+
+#     except (KeyError, IndexError) as e:
+#         print(f"Webhook parse error (likely a non-message event): {e}")
+
+#     return {"status": "received"}
 
 
 

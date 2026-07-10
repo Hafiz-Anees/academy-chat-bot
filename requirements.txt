@@ -7,3 +7,5 @@ langchain-groq
 fastapi
 uvicorn
 pydantic
+groq
+deepgram-sdk
