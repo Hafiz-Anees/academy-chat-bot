@@ -3,7 +3,7 @@ from fastapi import FastAPI, Request, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from core.rag_chain import get_response
-from core.whatsapp import send_whatsapp_message
+from core.whatsapp import send_whatsapp_message , download_media
 import os
 
 app = FastAPI(title="Academy Admissions Agent API")
@@ -24,6 +24,15 @@ processed_message_ids: set[str] = set()
 # One lock per user so their messages are handled in order, never concurrently
 user_locks: dict[str, asyncio.Lock] = {}
 
+
+# for voice message 
+
+async def test_download_voice(media_id: str):
+    from core.whatsapp import download_media
+    audio_bytes = download_media(media_id)
+    with open(f"test_voice_{media_id}.ogg", "wb") as f:
+        f.write(audio_bytes)
+    print(f"Downloaded voice note: {len(audio_bytes)} bytes, saved as test_voice_{media_id}.ogg")
 
 def get_user_lock(user_id: str) -> asyncio.Lock:
     if user_id not in user_locks:
@@ -112,6 +121,11 @@ async def receive_whatsapp(request: Request, background_tasks: BackgroundTasks):
             return {"status": "ignored"}
 
         message = value["messages"][0]
+        if message.get("type") == "audio":
+            media_id = message["audio"]["id"]
+            print(f"Received voice message from {message['from']}, media_id={media_id}")
+            background_tasks.add_task(test_download_voice, media_id)
+            return {"status": "received"}
         from_number = message["from"]
         text = message["text"]["body"]
         msg_id = message["id"]  # WhatsApp's unique message ID
@@ -131,6 +145,7 @@ async def receive_whatsapp(request: Request, background_tasks: BackgroundTasks):
         print(f"Webhook parse error (likely a non-message event): {e}")
 
     return {"status": "received"}
+
 
 
 
