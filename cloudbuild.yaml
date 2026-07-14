@@ -1,0 +1,29 @@
+steps:
+  # Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'asia-south1-docker.pkg.dev/$PROJECT_ID/academy-bot-repo/academy-bot:$COMMIT_SHA'
+      - '.'
+
+  # Push the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'asia-south1-docker.pkg.dev/$PROJECT_ID/academy-bot-repo/academy-bot:$COMMIT_SHA'
+
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - academy-bot
+      - --image=asia-south1-docker.pkg.dev/$PROJECT_ID/academy-bot-repo/academy-bot:$COMMIT_SHA
+      - --region=asia-south1
+      - --platform=managed
+      - --allow-unauthenticated
+
+images:
+  - 'asia-south1-docker.pkg.dev/$PROJECT_ID/academy-bot-repo/academy-bot:$COMMIT_SHA'
