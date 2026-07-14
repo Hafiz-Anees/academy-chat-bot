@@ -19,7 +19,7 @@ async def process_message(from_number: str, text: str):
         send_whatsapp_message(from_number, reply)
         print(f"Sent WhatsApp message to {from_number}: {reply}")
 
-        
+
 
 """Handles a voice note: download -> transcribe -> RAG -> reply as voice."""
 
@@ -36,7 +36,8 @@ async def process_voice_message(from_number: str, media_id: str):
             reply = get_response(transcript, chat_history=history)
             history.append({"role": "user", "content": transcript})
             history.append({"role": "assistant", "content": reply})
-
+            # fix the markdown formatting for audio reply, since WhatsApp doesn't support markdown in voice messages
+            # reply = reply.replace("**", "").replace("*", "")  # Remove markdown formatting or can use llm to convert it into plain text
             reply_audio = synthesize_speech(reply)
             send_whatsapp_audio(from_number, reply_audio)
             print(f"Sent voice reply to {from_number}: {reply}")
