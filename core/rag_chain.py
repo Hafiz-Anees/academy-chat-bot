@@ -2,20 +2,9 @@
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage
 from core.vectorstore import search
 from core.llm import get_llm
+from scripts.llm_prompt import get_prompt
 
-SYSTEM_PROMPT = """
-
-You are the admissions assistant for {academy_name}.
-Answer ONLY using the provided context about courses, fees, policies, and admissions.
-If the answer isn't in the context, say you're not sure and offer to connect the user with the admissions office.
-Do not answer questions unrelated to the academy.
-Keep answers concise and friendly.
-============================================
-
-if someone ask (hi,who,hello) - reply (am helpful assistant for {academy_name} admissions. How can I help you today?)
-
-"""
-
+SYSTEM_PROMPT = get_prompt()
 
 def build_context(chunks: list[dict]) -> str:
     if not chunks:
