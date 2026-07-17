@@ -12,7 +12,7 @@ def build_context(chunks: list[dict]) -> str:
     return "\n\n".join(f"[{c.get('category', 'general')}] {c['text']}" for c in chunks)
 
 
-def get_response(query: str, chat_history: list[dict] = None, academy_name: str = "naseer education system") -> str:
+def get_response(query: str, chat_history: list[dict] = None, academy_name: str = "Anees education system") -> str:
     """chat_history: [{'role': 'user'|'assistant', 'content': str}, ...]"""
     chat_history = chat_history or []
     chunks = search(query)

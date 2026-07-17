@@ -6,6 +6,8 @@ import os
 from core.rag_chain import get_response
 from scripts.state import sessions, processed_message_ids
 from scripts.handlers import process_message, process_voice_message
+from core.embeddings import get_embedder
+from core.vectorstore import get_client, ensure_collection
 
 app = FastAPI(title="Academy Admissions Agent API")
 
@@ -19,8 +21,7 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup_event():
-    from core.embeddings import get_embedder
-    from core.vectorstore import get_client, ensure_collection
+    
 
     print("Warming up embedding model...")
     get_embedder()
