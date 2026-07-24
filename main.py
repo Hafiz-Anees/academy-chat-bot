@@ -42,9 +42,10 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     reply: str
 
+
 class EmbeddedSignupRequest(BaseModel):
     code: str
-
+    redirect_uri: str
 
 @app.get("/health")
 def health():
@@ -115,45 +116,117 @@ async def receive_whatsapp(request: Request, background_tasks: BackgroundTasks):
 
 
 # embedded signup 
-
 @app.post("/embedded-signup")
-async def embedded_signup(request: EmbeddedSignupRequest):
+async def embedded_signup(
+    request: EmbeddedSignupRequest
+):
 
     print("Received Embedded Signup code:")
     print(request.code)
 
-    url = "https://graph.facebook.com/v25.0/oauth/access_token"
+    print("Received redirect URI:")
+    print(request.redirect_uri)
+
+
+    meta_app_id = os.getenv("META_APP_ID")
+
+    meta_app_secret = os.getenv("META_APP_SECRET")
+
+
+    if not meta_app_id:
+
+        raise HTTPException(
+            status_code=500,
+            detail="META_APP_ID is not configured"
+        )
+
+
+    if not meta_app_secret:
+
+        raise HTTPException(
+            status_code=500,
+            detail="META_APP_SECRET is not configured"
+        )
+
+
+    url = (
+        "https://graph.facebook.com/v25.0/"
+        "oauth/access_token"
+    )
+
 
     params = {
-        "client_id": os.getenv("META_APP_ID"),
-        "client_secret": os.getenv("META_APP_SECRET"),
-        "code": request.code
+
+        "client_id":
+            meta_app_id,
+
+        "client_secret":
+            meta_app_secret,
+
+        "code":
+            request.code,
+
+        "redirect_uri":
+            request.redirect_uri
+
     }
 
-    print("META_APP_ID:", os.getenv("META_APP_ID"))
-    print("META_APP_SECRET exists:", bool(os.getenv("META_APP_SECRET")))
+
+    print("Sending token exchange request to Meta...")
+
 
     async with httpx.AsyncClient() as client:
 
         response = await client.get(
+
             url,
+
             params=params
+
         )
 
-    print("Meta status code:", response.status_code)
-    print("Meta response:", response.text)
+
+    print(
+        "Meta token exchange status:",
+        response.status_code
+    )
+
+
+    print(
+        "Meta token exchange response:",
+        response.text
+    )
+
 
     if response.status_code != 200:
+        try:
+            error_data = response.json()
+        except Exception:
+
+            error_data = {
+                "message": response.text
+            }
+
 
         raise HTTPException(
+
             status_code=response.status_code,
-            detail=response.json()
+
+            detail=error_data
+
         )
+
 
     token_data = response.json()
 
     return {
+
         "success": True,
-        "message": "Authorization code exchanged successfully",
-        "data": token_data
+
+        "message":
+            "Authorization code exchanged successfully",
+
+        "data":
+            token_data
+
     }
