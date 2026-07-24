@@ -10,3 +10,4 @@ pydantic
 groq
 deepgram-sdk
 supabase
+httpx
