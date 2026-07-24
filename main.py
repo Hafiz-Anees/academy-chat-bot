@@ -2,7 +2,8 @@ from fastapi import FastAPI, Request, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import os
-
+import httpx
+from fastapi import HTTPException
 from core.rag_chain import get_response
 from scripts.state import sessions, processed_message_ids
 from scripts.handlers import process_message, process_voice_message
@@ -121,10 +122,43 @@ async def embedded_signup(request: EmbeddedSignupRequest):
     print("Received Embedded Signup code:")
     print(request.code)
 
-    return {
-        "success": True,
-        "message": "Authorization code received successfully"
-    }
+    try:
+        async with httpx.AsyncClient() as client:
 
+            response = await client.get(
+                "https://graph.facebook.com/v25.0/oauth/access_token",
+                params={
+                    "client_id": os.getenv("META_APP_ID"),
+                    "client_secret": os.getenv("META_APP_SECRET"),
+                    "code": request.code
+                }
+            )
 
+        data = response.json()
+
+        print("Meta token exchange response:")
+        print(data)
+
+        if response.status_code != 200:
+
+            raise HTTPException(
+                status_code=response.status_code,
+                detail=data
+            )
+
+        return {
+            "success": True,
+            "message": "Authorization code exchanged successfully",
+            "access_token": data.get("access_token")
+        }
+
+    except Exception as error:
+
+        print("Token exchange error:")
+        print(str(error))
+
+        raise HTTPException(
+            status_code=500,
+            detail=str(error)
+        )
 
