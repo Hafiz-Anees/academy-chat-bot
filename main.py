@@ -116,12 +116,6 @@ async def receive_whatsapp(request: Request, background_tasks: BackgroundTasks):
 
 # embedded signup 
 
-import os
-import httpx
-
-from fastapi import HTTPException
-
-
 @app.post("/embedded-signup")
 async def embedded_signup(request: EmbeddedSignupRequest):
 
@@ -136,6 +130,9 @@ async def embedded_signup(request: EmbeddedSignupRequest):
         "code": request.code
     }
 
+    print("META_APP_ID:", os.getenv("META_APP_ID"))
+    print("META_APP_SECRET exists:", bool(os.getenv("META_APP_SECRET")))
+
     async with httpx.AsyncClient() as client:
 
         response = await client.get(
@@ -143,8 +140,8 @@ async def embedded_signup(request: EmbeddedSignupRequest):
             params=params
         )
 
-    print("Meta token exchange response:")
-    print(response.text)
+    print("Meta status code:", response.status_code)
+    print("Meta response:", response.text)
 
     if response.status_code != 200:
 
