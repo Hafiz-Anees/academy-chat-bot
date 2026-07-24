@@ -50,6 +50,7 @@ def health():
 @app.post("/chat", response_model=ChatResponse)
 def chat(req: ChatRequest):
     history = sessions.setdefault(req.session_id, [])
+    print(f"history : {history}")
     reply = get_response(req.message, chat_history=history)
     history.append({"role": "user", "content": req.message})
     history.append({"role": "assistant", "content": reply})
