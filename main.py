@@ -41,6 +41,9 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     reply: str
 
+class EmbeddedSignupRequest(BaseModel):
+    code: str
+
 
 @app.get("/health")
 def health():
@@ -108,6 +111,20 @@ async def receive_whatsapp(request: Request, background_tasks: BackgroundTasks):
         print(f"Webhook parse error (likely a non-message event): {e}")
 
     return {"status": "received"}
+
+
+# embedded signup 
+
+@app.post("/embedded-signup")
+async def embedded_signup(request: EmbeddedSignupRequest):
+
+    print("Received Embedded Signup code:")
+    print(request.code)
+
+    return {
+        "success": True,
+        "message": "Authorization code received successfully"
+    }
 
 
 
