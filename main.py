@@ -116,49 +116,47 @@ async def receive_whatsapp(request: Request, background_tasks: BackgroundTasks):
 
 # embedded signup 
 
+import os
+import httpx
+
+from fastapi import HTTPException
+
+
 @app.post("/embedded-signup")
 async def embedded_signup(request: EmbeddedSignupRequest):
 
     print("Received Embedded Signup code:")
     print(request.code)
 
-    try:
-        async with httpx.AsyncClient() as client:
+    url = "https://graph.facebook.com/v25.0/oauth/access_token"
 
-            response = await client.get(
-                "https://graph.facebook.com/v25.0/oauth/access_token",
-                params={
-                    "client_id": os.getenv("META_APP_ID"),
-                    "client_secret": os.getenv("META_APP_SECRET"),
-                    "code": request.code
-                }
-            )
+    params = {
+        "client_id": os.getenv("META_APP_ID"),
+        "client_secret": os.getenv("META_APP_SECRET"),
+        "code": request.code
+    }
 
-        data = response.json()
+    async with httpx.AsyncClient() as client:
 
-        print("Meta token exchange response:")
-        print(data)
-
-        if response.status_code != 200:
-
-            raise HTTPException(
-                status_code=response.status_code,
-                detail=data
-            )
-
-        return {
-            "success": True,
-            "message": "Authorization code exchanged successfully",
-            "access_token": data.get("access_token")
-        }
-
-    except Exception as error:
-
-        print("Token exchange error:")
-        print(str(error))
-
-        raise HTTPException(
-            status_code=500,
-            detail=str(error)
+        response = await client.get(
+            url,
+            params=params
         )
 
+    print("Meta token exchange response:")
+    print(response.text)
+
+    if response.status_code != 200:
+
+        raise HTTPException(
+            status_code=response.status_code,
+            detail=response.json()
+        )
+
+    token_data = response.json()
+
+    return {
+        "success": True,
+        "message": "Authorization code exchanged successfully",
+        "data": token_data
+    }
