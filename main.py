@@ -45,7 +45,6 @@ class ChatResponse(BaseModel):
 
 class EmbeddedSignupRequest(BaseModel):
     code: str
-    redirect_uri: str
 
 @app.get("/health")
 def health():
@@ -115,67 +114,86 @@ async def receive_whatsapp(request: Request, background_tasks: BackgroundTasks):
     return {"status": "received"}
 
 
-# embedded signup 
+# embedded signup
+
 @app.post("/embedded-signup")
 async def embedded_signup(
     request: EmbeddedSignupRequest
 ):
 
-    print("Received Embedded Signup code:")
-    print(request.code)
+    print(
+        "Received Embedded Signup authorization code:"
+    )
 
-    print("Received redirect URI:")
-    print(request.redirect_uri)
+    print(
+        request.code
+    )
 
 
-    meta_app_id = os.getenv("META_APP_ID")
+    meta_app_id = os.getenv(
+        "META_APP_ID"
+    )
 
-    meta_app_secret = os.getenv("META_APP_SECRET")
+
+    meta_app_secret = os.getenv(
+        "META_APP_SECRET"
+    )
 
 
     if not meta_app_id:
 
         raise HTTPException(
+
             status_code=500,
-            detail="META_APP_ID is not configured"
+
+            detail=
+                "META_APP_ID is not configured"
+
         )
 
 
     if not meta_app_secret:
 
         raise HTTPException(
+
             status_code=500,
-            detail="META_APP_SECRET is not configured"
+
+            detail=
+                "META_APP_SECRET is not configured"
+
         )
 
 
     url = (
-        "https://graph.facebook.com/v25.0/"
-        "oauth/access_token"
+        "https://graph.facebook.com/"
+        "v25.0/oauth/access_token"
     )
 
 
     params = {
 
+
         "client_id":
             meta_app_id,
+
 
         "client_secret":
             meta_app_secret,
 
-        "code":
-            request.code,
 
-        "redirect_uri":
-            request.redirect_uri
+        "code":
+            request.code
 
     }
 
 
-    print("Sending token exchange request to Meta...")
+    print(
+        "Sending authorization code to Meta..."
+    )
 
 
     async with httpx.AsyncClient() as client:
+
 
         response = await client.get(
 
@@ -187,44 +205,58 @@ async def embedded_signup(
 
 
     print(
-        "Meta token exchange status:",
+        "Meta response status:",
         response.status_code
     )
 
 
     print(
-        "Meta token exchange response:",
+        "Meta response:",
         response.text
     )
 
 
     if response.status_code != 200:
+
+
         try:
+
             error_data = response.json()
+
         except Exception:
 
             error_data = {
-                "message": response.text
+
+                "message":
+                    response.text
+
             }
 
 
         raise HTTPException(
 
-            status_code=response.status_code,
+            status_code=
+                response.status_code,
 
-            detail=error_data
+            detail=
+                error_data
 
         )
 
 
     token_data = response.json()
 
+
     return {
 
-        "success": True,
+
+        "success":
+            True,
+
 
         "message":
             "Authorization code exchanged successfully",
+
 
         "data":
             token_data
