@@ -34,7 +34,6 @@ def _validate_fields(phone_number: str, name: str, student_class: str, email: st
     if not email or not EMAIL_RE.match(email.strip()):
         errors.append("email is missing or not a valid email address")
 
-    # Strip common formatting chars before checking phone digits
     cleaned_phone = re.sub(r"[\s\-()]", "", phone_number or "")
     if not cleaned_phone or not PHONE_RE.match(cleaned_phone):
         errors.append("phone number is missing or not a valid phone number")
@@ -49,8 +48,8 @@ def check_registration(phone_number: str = None, email: str = None) -> dict:
     back) to avoid leaking full records if this is ever misused for
     enumeration.
     """
-    client = get_supabase_client()
     try:
+        client = get_supabase_client()
         query = client.table("students").select("name, class")
 
         if phone_number:
@@ -81,8 +80,6 @@ def register_student(phone_number: str, name: str, student_class: str, email: st
     Inserts a student registration into Supabase.
     Returns a dict describing success/failure, meant to be fed back to the LLM.
     """
-    # Strict format validation -- rejects missing fields AND hallucinated/
-    # placeholder values like "[phone]" or "N/A" that a truthy-check would miss
     errors = _validate_fields(phone_number, name, student_class, email)
     if errors:
         return {
@@ -96,8 +93,9 @@ def register_student(phone_number: str, name: str, student_class: str, email: st
 
     cleaned_phone = re.sub(r"[\s\-()]", "", phone_number)
 
-    client = get_supabase_client()
     try:
+        client = get_supabase_client()
+
         existing = client.table("students").select("id").eq("phone_number", cleaned_phone).execute()
         if existing.data:
             return {
