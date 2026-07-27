@@ -166,7 +166,7 @@ async def embedded_signup(
 
     url = (
         "https://graph.facebook.com/"
-        "v25.0/oauth/access_token"
+        "v23.0/oauth/access_token"
     )
 
 
@@ -191,7 +191,7 @@ async def embedded_signup(
         # is enabled on the app.
 
         "redirect_uri":
-            "https://codingwithanees.netlify.app/"
+            "https://embedded-signup-tv0l.onrender.com/"
 
     }
 
