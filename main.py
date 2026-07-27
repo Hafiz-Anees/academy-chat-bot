@@ -182,7 +182,16 @@ async def embedded_signup(
 
 
         "code":
-            request.code
+            request.code,
+
+
+        # Must exactly match the redirect_uri
+        # used in the frontend FB.login() call,
+        # since "Use Strict Mode for redirect URIs"
+        # is enabled on the app.
+
+        "redirect_uri":
+            "https://codingwithanees.netlify.app/"
 
     }
 
