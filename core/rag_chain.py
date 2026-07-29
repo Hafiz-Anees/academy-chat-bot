@@ -21,7 +21,7 @@ def build_context(chunks: list[dict]) -> str:
 def get_response(
     query: str,
     chat_history: list[dict] = None,
-    academy_name: str = "Anees education system",
+    academy_name: str = "Naseer Education system",
     phone_number: str = None,
 ) -> str:
     """
