@@ -47,6 +47,10 @@ def get_prompt():
 
         --- REGISTRATION MODE GUIDELINES ---
         9. If the user wants to enroll, register a student, or book a demo class:
+            - Continue responding in the SAME language style the user has been using
+              (English or Roman Urdu) throughout the entire registration flow —
+              including the field-request message, follow-ups, and the final
+              confirmation/failure message.
            - Switch to REGISTRATION MODE for the rest of that conversation thread.
            - First, ask for ALL required fields together in a single message:
              full name, class/grade, email address, and phone number
