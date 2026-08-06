@@ -1,14 +1,10 @@
-from fastapi import FastAPI, Request, BackgroundTasks
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
-import os
-import httpx
-from fastapi import HTTPException
-from core.rag_chain import get_response
-from scripts.state import sessions, processed_message_ids
-from scripts.handlers import process_message, process_voice_message
+
 from core.embeddings import get_embedder
 from core.vectorstore import get_client, ensure_collection
+
+from routers import health, chat, webhook
 
 app = FastAPI(title="Academy Admissions Agent API")
 
@@ -19,11 +15,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(health.router)
+app.include_router(chat.router)
+app.include_router(webhook.router)
+
 
 @app.on_event("startup")
 async def startup_event():
-    
-
     print("Warming up embedding model...")
     get_embedder()
 
@@ -32,242 +30,3 @@ async def startup_event():
     ensure_collection()
 
     print("Startup warm-up complete.")
-
-
-class ChatRequest(BaseModel):
-    session_id: str
-    message: str
-
-
-class ChatResponse(BaseModel):
-    reply: str
-
-
-class EmbeddedSignupRequest(BaseModel):
-    code: str
-
-@app.get("/health")
-def health():
-    return {"status": "ok"}
-
-
-@app.post("/chat", response_model=ChatResponse)
-def chat(req: ChatRequest):
-    history = sessions.setdefault(req.session_id, [])
-    print(f"history : {history}")
-    reply = get_response(req.message, chat_history=history)
-    history.append({"role": "user", "content": req.message})
-    history.append({"role": "assistant", "content": reply})
-    print(f"Session {req.session_id} - User: {req.message} | Assistant: {reply}")
-    return ChatResponse(reply=reply)
-
-
-WHATSAPP_VERIFY_TOKEN = os.getenv("WHATSAPP_VERIFY_TOKEN")
-
-
-@app.get("/webhook")
-def verify_webhook(request: Request):
-    params = request.query_params
-    mode = params.get("hub.mode")
-    token = params.get("hub.verify_token")
-    challenge = params.get("hub.challenge")
-
-    if mode == "subscribe" and token == WHATSAPP_VERIFY_TOKEN:
-        return int(challenge)
-    return {"error": "verification failed"}, 403
-
-
-@app.post("/webhook")
-async def receive_whatsapp(request: Request, background_tasks: BackgroundTasks):
-    data = await request.json()
-    try:
-        entry = data["entry"][0]
-        changes = entry["changes"][0]
-        value = changes["value"]
-
-        if "messages" not in value:
-            return {"status": "ignored"}
-
-        message = value["messages"][0]
-        msg_id = message["id"]
-        from_number = message["from"]
-
-        if msg_id in processed_message_ids:
-            print(f"Duplicate message {msg_id} ignored.")
-            return {"status": "duplicate_ignored"}
-        processed_message_ids.add(msg_id)
-
-        # Handle voice messages first, since they don't have a "text" field
-        if message.get("type") == "audio":
-            media_id = message["audio"]["id"]
-            print(f"Received voice message from {from_number}, media_id={media_id}")
-            background_tasks.add_task(process_voice_message, from_number, media_id) # for voice messages
-            return {"status": "received"}
-
-        text = message["text"]["body"]
-        print(f"Received message from {from_number}: {text}")
-        background_tasks.add_task(process_message, from_number, text)  # for chat messages 
-
-    except (KeyError, IndexError) as e:
-        print(f"Webhook parse error (likely a non-message event): {e}")
-
-    return {"status": "received"}
-
-
-# embedded signup
-
-@app.post("/embedded-signup")
-async def embedded_signup(
-    request: EmbeddedSignupRequest
-):
-
-    print(
-        "Received Embedded Signup authorization code:"
-    )
-
-    print(
-        request.code
-    )
-
-
-    meta_app_id = os.getenv(
-        "META_APP_ID"
-    )
-
-
-    meta_app_secret = os.getenv(
-        "META_APP_SECRET"
-    )
-
-
-    if not meta_app_id:
-
-        raise HTTPException(
-
-            status_code=500,
-
-            detail=
-                "META_APP_ID is not configured"
-
-        )
-
-
-    if not meta_app_secret:
-
-        raise HTTPException(
-
-            status_code=500,
-
-            detail=
-                "META_APP_SECRET is not configured"
-
-        )
-
-
-    url = (
-        "https://graph.facebook.com/"
-        "v23.0/oauth/access_token"
-    )
-
-
-    params = {
-
-
-        "client_id":
-            meta_app_id,
-
-
-        "client_secret":
-            meta_app_secret,
-
-
-        "code":
-            request.code,
-
-
-        # Must exactly match the redirect_uri
-        # used in the frontend FB.login() call,
-        # since "Use Strict Mode for redirect URIs"
-        # is enabled on the app.
-
-        "redirect_uri":
-            "https://embedded-signup-tv0l.onrender.com/"
-
-    }
-
-
-    print(
-        "Sending authorization code to Meta..."
-    )
-
-
-    async with httpx.AsyncClient() as client:
-
-
-        response = await client.get(
-
-            url,
-
-            params=params
-
-        )
-
-
-    print(
-        "Meta response status:",
-        response.status_code
-    )
-
-
-    print(
-        "Meta response:",
-        response.text
-    )
-
-
-    if response.status_code != 200:
-
-
-        try:
-
-            error_data = response.json()
-
-        except Exception:
-
-            error_data = {
-
-                "message":
-                    response.text
-
-            }
-
-
-        raise HTTPException(
-
-            status_code=
-                response.status_code,
-
-            detail=
-                error_data
-
-        )
-
-
-    token_data = response.json()
-
-
-    return {
-
-
-        "success":
-            True,
-
-
-        "message":
-            "Authorization code exchanged successfully",
-
-
-        "data":
-            token_data
-
-    }
