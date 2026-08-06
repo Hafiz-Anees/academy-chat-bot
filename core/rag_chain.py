@@ -1,5 +1,7 @@
 """Retrieval + prompt + LLM response, with scope guardrails and registration tool-calling."""
 from langchain_core.messages import SystemMessage, HumanMessage, AIMessage, ToolMessage
+from groq import BadRequestError
+
 from core.vectorstore import search
 from core.llm import get_llm
 from core.database import (
@@ -16,6 +18,20 @@ def build_context(chunks: list[dict]) -> str:
     if not chunks:
         return "No relevant information found."
     return "\n\n".join(f"[{c.get('category', 'general')}] {c['text']}" for c in chunks)
+
+
+def _safe_invoke(llm_with_tools, llm_plain, messages):
+    """
+    Invoke the tool-bound LLM. If Groq rejects the tool call because the model
+    generated incomplete/invalid arguments (e.g. calling register_student before
+    it has collected name/email/class/phone), fall back to a plain response so
+    the user still gets a reply instead of the request crashing.
+    """
+    try:
+        return llm_with_tools.invoke(messages)
+    except BadRequestError as e:
+        print(f"[TOOL CALL VALIDATION FAILED] Falling back to plain response. Error: {e}")
+        return llm_plain.invoke(messages)
 
 
 def get_response(
@@ -40,6 +56,15 @@ def get_response(
             f"if you need to call the register_student or check_registration tool."
         )
 
+    # Extra guardrail: keep this in your prompt file too if you can, but a
+    # runtime reminder here helps regardless of what get_prompt() returns.
+    system_text += (
+        "\n\nWhen registering a student, only call the register_student tool once "
+        "you have ALL required fields (full name, class/grade, email, phone number "
+        "if not already known). If any field is missing, ask the user for it in "
+        "plain text instead of calling the tool."
+    )
+
     messages = [SystemMessage(content=system_text)]
     for turn in chat_history[-30:]:
         if turn["role"] == "user":
@@ -59,9 +84,9 @@ def get_response(
     llm = get_llm()
     llm_with_tools = llm.bind_tools(REGISTRATION_TOOLS)
 
-    response = llm_with_tools.invoke(messages)
+    response = _safe_invoke(llm_with_tools, llm, messages)
 
-    # No tool call -> normal RAG reply
+    # No tool call -> normal RAG reply (also covers the fallback-on-error path)
     if not getattr(response, "tool_calls", None):
         return response.content
 
@@ -72,15 +97,26 @@ def get_response(
         if tool_call["name"] == "register_student":
             args = tool_call["args"]
 
-            # Never trust the LLM's own phone_number if we already know it
-            final_phone = phone_number or args.get("phone_number")
+            required = ["name", "student_class", "email"]
+            if not phone_number:
+                required.append("phone_number")
+            missing = [f for f in required if not args.get(f)]
 
-            result = db_register_student(
-                phone_number=final_phone,
-                name=args.get("name"),
-                student_class=args.get("student_class"),
-                email=args.get("email"),
-            )
+            if missing:
+                # Defensive check in case a partial tool call somehow still
+                # slips through Groq's validation with some fields present.
+                result = (
+                    f"Missing required info: {', '.join(missing)}. "
+                    f"Please ask the user to provide it before registering."
+                )
+            else:
+                final_phone = phone_number or args.get("phone_number")
+                result = db_register_student(
+                    phone_number=final_phone,
+                    name=args.get("name"),
+                    student_class=args.get("student_class"),
+                    email=args.get("email"),
+                )
 
             messages.append(
                 ToolMessage(
@@ -116,5 +152,5 @@ def get_response(
             )
 
     # Call the LLM again so it can turn the tool result into a natural reply
-    final_response = llm_with_tools.invoke(messages)
+    final_response = _safe_invoke(llm_with_tools, llm, messages)
     return final_response.content
