@@ -42,3 +42,6 @@ model_cache/
 
 # pytest / test artifacts
 .pytest_cache/
+
+credentials.json
+token.json

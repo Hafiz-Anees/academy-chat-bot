@@ -2,6 +2,7 @@
 import os
 import re
 from supabase import create_client, Client
+from core.send_email import send_registration_emails
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
@@ -112,6 +113,8 @@ def register_student(phone_number: str, name: str, student_class: str, email: st
         }).execute()
 
         if result.data:
+            # for sending email
+            send_registration_emails(name.strip(), email.strip(), cleaned_phone, student_class.strip())
             return {"success": True, "message": "Student registered successfully."}
         return {"success": False, "message": "Insert returned no data."}
 

@@ -11,3 +11,6 @@ groq
 deepgram-sdk
 supabase
 httpx
+langchain-google-community[gmail]
+google-auth-httplib2
+google-auth-oauthlib
