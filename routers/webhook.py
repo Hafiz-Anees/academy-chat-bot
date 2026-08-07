@@ -1,7 +1,5 @@
 import os
-
 from fastapi import APIRouter, BackgroundTasks, Request
-
 from scripts.state import processed_message_ids
 from scripts.handlers import process_message, process_voice_message
 

@@ -7,7 +7,7 @@ sessions: dict[str, list] = {}
 # WhatsApp message IDs already processed (guards against Meta's webhook retries)
 processed_message_ids: set[str] = set()
 
-# One asyncio.Lock per user, so their messages are handled in order, never concurrently
+# One asyncio.Lock per user, so their messages are handled in order, never concurrently , avoid race condition
 _user_locks: dict[str, asyncio.Lock] = {}
 
 
