@@ -7,8 +7,11 @@ category: Admissions
 
 | Program | Monthly Fee |
 |---|---:|
-| Primary | PKR 4500 |
-| Secondary | PKR 6000 |
+| 9th | PKR 4500 |
+| 10th | PKR 6000 |
+|python programming| PKR 5000 |
+|web development | PKR 5000 |
+|RAG Chatbot | PKR 10,000 |
 
 ## Payment Policy
 Fees due before 10th of each month.

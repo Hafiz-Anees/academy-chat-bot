@@ -5,9 +5,4 @@ category: Campus
 ---
 # Library
 
-## Hours
-Mon-Sat 8AM-5PM
-
-## Rules
-- 3 books
-- 14 days
+- Hours of Operation: Friday and Saturday, 6:00 AM to 7:00 PM

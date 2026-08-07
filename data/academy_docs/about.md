@@ -7,7 +7,7 @@ category: About us
 
 ## Academy name
 
-Naseer education system
+Anees education system
 
 ## address 
 

@@ -14,3 +14,4 @@ httpx
 langchain-google-community[gmail]
 google-auth-httplib2
 google-auth-oauthlib
+langchain-text-splitters

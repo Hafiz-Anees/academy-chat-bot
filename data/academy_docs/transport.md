@@ -4,10 +4,4 @@ title: Transport Service
 category: Campus
 ---
 # Transport
-
-## Routes
-- City Center
-- North Colony
-
-## Rules
-Carry transport card.
+- there is no facility of transport service in our academy.
