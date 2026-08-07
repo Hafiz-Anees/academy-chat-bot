@@ -1,13 +1,21 @@
 import os
-from langchain_google_community.gmail.utils import build_resource_service, get_google_credentials
+import shutil
+import tempfile
+from langchain_google_community._utils import get_google_credentials
+from langchain_google_community.gmail.utils import build_resource_service
 from langchain_google_community.gmail.send_message import GmailSendMessage
 import logging
 
 logger = logging.getLogger(__name__)
 
-# Use Cloud Run mounted paths if available, otherwise fall back to local paths
 CREDENTIALS_PATH = os.getenv("GMAIL_CREDENTIALS_PATH", "credentials.json")
-TOKEN_PATH = os.getenv("GMAIL_TOKEN_PATH", "token.json")
+TOKEN_SOURCE_PATH = os.getenv("GMAIL_TOKEN_PATH", "token.json")
+
+# The token file must be writable (the library rewrites it after loading/refreshing).
+# Secret-mounted paths (Render /etc/secrets, Cloud Run secret volumes) are read-only,
+# so copy it to a writable temp location first.
+TOKEN_PATH = os.path.join(tempfile.gettempdir(), "gmail_token.json")
+shutil.copyfile(TOKEN_SOURCE_PATH, TOKEN_PATH)
 
 _credentials = get_google_credentials(
     token_file=TOKEN_PATH,
