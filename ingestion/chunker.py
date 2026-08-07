@@ -1,5 +1,5 @@
 """Load markdown files (with YAML frontmatter), separate metadata from content,
-and split the body into retrieval-sized chunks."""
+and split the body into retrieval sized chunks."""
 import hashlib
 from pathlib import Path
 import frontmatter
