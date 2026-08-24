@@ -7,7 +7,7 @@ category: Admissions
 
 | Program | Monthly Fee |
 |---|---:|
-| 9th | PKR 4500 |
+| 9th | PKR 5000 |
 | 10th | PKR 6000 |
 |python programming| PKR 5000 |
 |web development | PKR 5000 |

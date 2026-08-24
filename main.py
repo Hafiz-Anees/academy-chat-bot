@@ -3,7 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from core.embeddings import get_embedder
 from core.vectorstore import get_client, ensure_collection
-
 from routers import health, chat, webhook
 
 app = FastAPI(title="Academy Admissions Agent API")

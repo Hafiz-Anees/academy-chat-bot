@@ -46,6 +46,13 @@ Python is a high-level, interpreted programming language known for its simple sy
 
 ---
 
+## Instructor Detail
+
+- Name : Anees ur rehman
+- Qualification : Bachelor of Science in Computer Science.
+- Experience : 5+ years of experience in Python programming and software development.
+- current : working as an Ai engineer at emrchains
+
 # Machine Learning
 
 ## Duration
