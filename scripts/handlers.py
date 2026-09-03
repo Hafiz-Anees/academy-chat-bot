@@ -5,7 +5,7 @@ from core.speech import transcribe_audio , synthesize_speech
 from core.whatsapp import send_whatsapp_audio
 from scripts.state import sessions, get_user_lock
 from core.instagram import send_instagram_message
-
+from core.messenger import send_messenger_message
 """Handles a text message: RAG response + reply."""
 
 async def process_message(from_number: str, text: str):
@@ -65,3 +65,17 @@ async def process_instagram_message(sender_id: str, text: str):
         history.append({"role": "assistant", "content": reply})
         send_instagram_message(sender_id, reply)
         print(f"Sent Instagram message to {sender_id}: {reply}")
+
+
+"""Handles an messenger DM: RAG response + reply."""
+
+async def process_messenger_message(sender_id: str, text: str):
+
+    lock = get_user_lock(sender_id)
+    async with lock:
+        history = sessions.setdefault(sender_id, [])
+        reply = get_response(text, chat_history=history)
+        history.append({"role": "user", "content": text})
+        history.append({"role": "assistant", "content": reply})
+        send_messenger_message(sender_id, reply)
+        print(f"Sent Messenger message to {sender_id}: {reply}")

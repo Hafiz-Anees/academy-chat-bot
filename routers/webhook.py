@@ -1,7 +1,7 @@
 import os
 from fastapi import APIRouter, BackgroundTasks, Request
 from scripts.state import processed_message_ids
-from scripts.handlers import process_message, process_voice_message, process_instagram_message
+from scripts.handlers import process_message, process_voice_message, process_instagram_message, process_messenger_message
 
 router = APIRouter(tags=["WhatsApp Webhook"])
 
@@ -27,6 +27,10 @@ async def receive_whatsapp(request: Request, background_tasks: BackgroundTasks):
     # NEW: route Instagram payloads separately, leave WhatsApp logic untouched below
     if data.get("object") == "instagram":
         return await receive_instagram(data, background_tasks)
+
+    # NEW: route Messenger payloads separately
+    if data.get("object") == "page":
+        return await receive_messenger(data, background_tasks)
 
     try:
         entry = data["entry"][0]
@@ -93,5 +97,41 @@ async def receive_instagram(data: dict, background_tasks: BackgroundTasks):
 
     except (KeyError, IndexError) as e:
         print(f"Instagram webhook parse error (likely a non-message event): {e}")
+
+    return {"status": "received"}
+
+
+# NEW: Messenger-specific handler, mirrors receive_instagram
+async def receive_messenger(data: dict, background_tasks: BackgroundTasks):
+    try:
+        entry = data["entry"][0]
+        messaging_event = entry["messaging"][0]
+
+        # Skip echo messages (Meta re-delivers messages your bot itself sent)
+        if messaging_event.get("message", {}).get("is_echo"):
+            return {"status": "ignored_echo"}
+
+        sender_id = messaging_event["sender"]["id"]
+        message = messaging_event.get("message", {})
+        msg_id = message.get("mid")
+
+        if not msg_id:
+            return {"status": "ignored"}
+
+        if msg_id in processed_message_ids:
+            print(f"Duplicate Messenger message {msg_id} ignored.")
+            return {"status": "duplicate_ignored"}
+        processed_message_ids.add(msg_id)
+
+        text = message.get("text")
+        if not text:
+            print(f"Non-text Messenger message from {sender_id}, skipping for now.")
+            return {"status": "ignored_non_text"}
+
+        print(f"Received Messenger message from {sender_id}: {text}")
+        background_tasks.add_task(process_messenger_message, sender_id, text)
+
+    except (KeyError, IndexError) as e:
+        print(f"Messenger webhook parse error (likely a non-message event): {e}")
 
     return {"status": "received"}
