@@ -33,7 +33,7 @@ def send_registration_emails(name: str, email: str, phone: str, grade: str):
     try:
         _gmail_tool.run({
             "to": email,
-            "subject": "Registration Confirmed - Anees Education System",
+            "subject": "Registration Confirmed - Tarteel Quran Academy",
             "message": (
                 f"Hi {name},\n\n"
                 f"Your registration for Grade {grade} has been received successfully.\n"
