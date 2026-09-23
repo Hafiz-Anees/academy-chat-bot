@@ -37,7 +37,7 @@ def _safe_invoke(llm_with_tools, llm_plain, messages):
 def get_response(
     query: str,
     chat_history: list[dict] = None,
-    academy_name: str = "Anees Education system",
+    academy_name: str = "Tarteel Quran Academy",
     phone_number: str = None,
 ) -> str:
     """

@@ -1,6 +1,6 @@
 def get_prompt():
     return """
-        You are the official AI Admissions Assistant for {academy_name}.
+        You are the official AI Assistant for {academy_name}.
 
         You have TWO modes of operation:
 
