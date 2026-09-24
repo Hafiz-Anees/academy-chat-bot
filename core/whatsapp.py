@@ -23,8 +23,6 @@ def send_whatsapp_message(to: str, body: str):
         "text": {"body": body},
     }
     r = requests.post(GRAPH_URL, headers=headers, json=payload, timeout=15)
-    if not r.ok:
-        print(f"[send_whatsapp_message] {r.status_code} error: {r.text}")   # <-- add this
     r.raise_for_status()
     return r.json()
 
