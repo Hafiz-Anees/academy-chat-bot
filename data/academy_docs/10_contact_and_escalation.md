@@ -2,9 +2,9 @@
 
 **For enrollment, trial booking, and general questions:** message us here on WhatsApp / Instagram / Messenger and our team will assist you.
 
-**WhatsApp:** [Add number]
+**WhatsApp:** [+92 3430101316]
 **Support hours:** [e.g. 9 AM – 9 PM, Monday–Saturday, PKT]
-**Email (optional):** [Add if available]
+**Email (optional):** [hafizrehmananees786@gmail.com]
 
 **When this chatbot should hand off to a human team member:**
 - Payment issues or disputes
