@@ -25,7 +25,7 @@ _credentials = get_google_credentials(
 _api_resource = build_resource_service(credentials=_credentials)
 _gmail_tool = GmailSendMessage(api_resource=_api_resource)
 
-ADMIN_EMAIL = "hafizrehmananees786@gmail.com"
+ADMIN_EMAIL = "quantiro786@gmail.com"
 
 
 def send_registration_emails(name: str, email: str, phone: str, grade: str):
@@ -33,10 +33,10 @@ def send_registration_emails(name: str, email: str, phone: str, grade: str):
     try:
         _gmail_tool.run({
             "to": email,
-            "subject": "Registration Confirmed - Tarteel Quran Academy",
+            "subject": "Registration Confirmed ",
             "message": (
                 f"Hi {name},\n\n"
-                f"Your registration for Grade {grade} has been received successfully.\n"
+                f"Your registration for {grade} has been received successfully.\n"
                 f"We'll be in touch with next steps shortly.\n\n"
                 f"Regards,\nAnees Education System"
             ),
