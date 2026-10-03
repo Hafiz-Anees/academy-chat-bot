@@ -1,146 +1,260 @@
+```markdown
 # Quantiro — Business Overview
 
 ## About Quantiro
 
 Quantiro is a technology and digital services business providing marketing services, AI solutions, AI-powered applications, and technology education.
 
-Quantiro helps businesses improve their digital presence, automate business processes, use AI to handle customer interactions, and develop AI-powered solutions.
+Quantiro helps businesses improve their digital presence, automate business processes, use AI for customer interactions, and develop AI-powered solutions.
 
 Quantiro also provides technology courses designed to help students and professionals develop practical skills in programming, machine learning, and agentic AI.
 
-## Quantiro Services
+---
 
-Quantiro currently offers the following major categories of services:
+# Main Quantiro Offerings
 
-### 1. Marketing Services
+Quantiro currently offers the following major categories:
 
-Quantiro provides marketing services to businesses, including digital and social media marketing solutions.
+1. Marketing Services
+2. AI Automation & Agentic AI
+3. AI Chat Agents
+4. AI Voice Agents
+5. AI-Based Applications
+6. Technology Courses
 
-The exact services, scope, deliverables, timeline, and pricing depend on the client's requirements and are discussed during a demo or consultation.
+When a customer asks a general question such as "What are your services?", "What does Quantiro offer?", or "What does Quantiro do?", these six categories should be treated as the main Quantiro offerings.
 
-**Pricing:** Marketing service pricing is not fixed. The price is determined after understanding the client's requirements, typically during or after a demo.
+---
 
-### 2. AI Automation & Agentic AI
+# 1. Marketing Services
+
+Quantiro provides marketing services to businesses.
+
+Detailed marketing services and their scope are described in the approved Marketing Services knowledge-base document.
+
+Marketing service pricing is not fixed. Pricing depends on the client's requirements and is determined during or after a demo or consultation.
+
+---
+
+# 2. AI Automation & Agentic AI
 
 Quantiro develops AI-powered automation and agentic AI solutions for businesses.
 
-These solutions can be designed according to a business's specific requirements and workflows.
+Solutions can be designed according to the client's requirements, business processes, and workflows.
 
-Examples may include:
+Examples of possible solutions include:
 
-* AI-powered business automation
-* Custom AI agents
-* Agentic AI systems
-* Business workflow automation
-* AI-powered customer interaction
-* Custom AI solutions
+- AI-powered business automation
+- Custom AI agents
+- Agentic AI systems
+- Business workflow automation
+- AI-powered customer interaction
+- Custom AI solutions
 
-**Pricing:** AI automation and agentic AI services do not have a fixed public price. Pricing is determined during or after a demo based on the client's requirements and project scope.
+The exact functionality and scope depend on the project requirements.
 
-### 3. AI Chat Agents
+### Pricing
 
-Quantiro develops AI-based chat agents that can be used for business and customer interactions.
+AI automation and agentic AI services do not have a fixed public price.
 
-Potential use cases include:
+Pricing is determined during or after a demo based on the client's requirements and project scope.
 
-* Customer support
-* Lead qualification
-* Frequently asked questions
-* Product or service information
-* Business inquiries
-* Customer engagement
+---
 
-The exact functionality depends on the client's requirements.
+# 3. AI Chat Agents
 
-**Pricing:** Chat agent pricing is determined during or after a demo based on requirements and scope.
+Quantiro develops AI-based chat agents for business and customer interactions.
 
-### 4. AI Voice Agents
+Possible use cases include:
 
-Quantiro provides AI-based voice agent solutions for businesses.
+- Customer support
+- Lead qualification
+- Frequently asked questions
+- Product or service information
+- Business inquiries
+- Customer engagement
 
-Voice agents can be designed for use cases such as:
+AI chat agents can be integrated with platforms or existing systems when the required API, permissions, access, and technical requirements are available.
 
-* Customer communication
-* Lead handling
-* Business inquiries
-* Appointment-related workflows
-* Automated voice interactions
+Possible integration environments include:
 
-The exact functionality, integrations, and scope depend on the client's requirements.
+- Instagram
+- Facebook
+- WhatsApp
+- Websites or web applications
+- Existing systems with a usable API or appropriate access
 
-**Pricing:** Voice agent pricing is determined during or after a demo.
+Integration availability depends on the specific platform and technical requirements. Do not guarantee an integration before technical assessment.
 
-### 5. AI-Based Applications
+### Pricing
+
+AI chat-agent pricing is not fixed.
+
+Pricing is determined during or after a demo based on requirements and project scope.
+
+---
+
+# 4. AI Voice Agents
+
+Quantiro provides AI-based voice-agent solutions for businesses.
+
+Possible use cases include:
+
+- Customer communication
+- Lead handling
+- Business inquiries
+- Appointment-related workflows
+- Automated voice interactions
+
+The exact functionality, integrations, workflow, and scope depend on the client's requirements.
+
+### Pricing
+
+AI voice-agent pricing is not fixed.
+
+Pricing is determined during or after a demo based on requirements and project scope.
+
+---
+
+# 5. AI-Based Applications
 
 Quantiro develops AI-powered applications according to business or project requirements.
 
-These may include custom applications that use AI, automation, agents, machine learning, or other technologies.
+Applications may include AI, automation, agents, machine learning, APIs, databases, and other technologies when required by the project.
 
-**Pricing:** AI-based application development does not have a fixed public price. Pricing is determined after understanding the project requirements and scope.
+The exact technology and architecture depend on the project's requirements.
 
-## Technology Courses
+Quantiro has experience with technologies including:
+
+- React
+- FastAPI
+- Django
+- PostgreSQL
+- Google Cloud Platform (GCP)
+
+Not every project uses all of these technologies.
+
+### Pricing
+
+AI-based application development does not have a fixed public price.
+
+Pricing is determined after understanding the project requirements and scope.
+
+---
+
+# 6. Technology Courses
 
 Quantiro offers technology courses focused on practical and industry-relevant skills.
 
 Current courses include:
 
-### Python Programming
+- Python Programming
+- Machine Learning
+- Agentic AI
 
-* Duration: 3 months
-* Fee: 5,000 PKR per month
-* A project is included as part of the course.
+---
 
-### Machine Learning
+## Python Programming
 
-* Fee: 5,000 PKR per month
-* Course duration: 3 months
-* A project is included as part of the course
+- Duration: 3 months
+- Fee: 5,000 PKR per month
+- A project is included.
 
-### Agentic AI
+---
 
-* Duration: 6 months
-* Fee: 5,000 PKR per month
-* A project is included as part of the course.
+## Machine Learning
 
-## Course Fee
+- Duration: 3 months
+- Fee: 5,000 PKR per month
+- A project is included.
 
-The current course fee is:
+---
 
-**5,000 PKR per month**
+## Agentic AI
 
-This fee applies to the currently offered technology courses unless Quantiro explicitly announces a different fee.
+- Duration: 6 months
+- Fee: 5,000 PKR per month
+- A project is included.
 
-## Important Pricing Rule
+---
 
-Quantiro's service pricing and course pricing must not be confused.
+# Course Policies
 
-* **Marketing services:** Pricing is determined during or after a demo.
-* **AI automation and agentic AI services:** Pricing is determined during or after a demo.
-* **AI chat agents:** Pricing is determined during or after a demo.
-* **AI voice agents:** Pricing is determined during or after a demo.
-* **AI-based applications:** Pricing is determined during or after a demo.
-* **Technology courses:** Current fee is 5,000 PKR per month.
+- Course fee: 5,000 PKR per month
+- Classes: 5 days per week
+- Class timing: Flexible according to student availability
+- Free trial: 3 days
+- Discount: 30% discount when 3 or more students enroll together
 
-The AI assistant must never invent a service price, project cost, discount, quotation, or package that is not present in the approved Quantiro knowledge base.
+No other discounts, promotions, fees, deadlines, or course policies should be assumed unless they are explicitly documented in the approved knowledge base.
 
-## Information Accuracy Rule
+---
 
-If a customer asks for information that is not available in the Quantiro knowledge base, the assistant must not guess or create an answer.
+# Pricing Summary
 
-The assistant should clearly state that the information is not currently available and, when appropriate, direct the customer to contact Quantiro or request a demo.
+## Marketing Services
 
-The assistant must not make assumptions about:
+Pricing is determined during or after a demo or consultation based on requirements.
 
-* Pricing
-* Discounts
-* Course schedules
-* Course duration when not specified
-* Service availability
-* Project timelines
-* Guarantees
-* Features
-* Integrations
-* Policies
-* Results or expected business outcomes
+## AI Automation & Agentic AI
 
-Only officially approved Quantiro information should be presented as a confirmed fact.
+Pricing is determined during or after a demo based on requirements and project scope.
+
+## AI Chat Agents
+
+Pricing is determined during or after a demo based on requirements and project scope.
+
+## AI Voice Agents
+
+Pricing is determined during or after a demo based on requirements and project scope.
+
+## AI-Based Applications
+
+Pricing is determined after understanding the project requirements and scope.
+
+## Technology Courses
+
+Current course fee: 5,000 PKR per month.
+
+Service pricing and course pricing must not be confused.
+
+---
+
+# Information Accuracy
+
+Only information contained in the approved Quantiro knowledge base should be presented as a confirmed Quantiro fact.
+
+If information is not available:
+
+- Do not guess.
+- Do not invent an answer.
+- Do not create a price or quotation.
+- Do not invent features.
+- Do not invent integrations.
+- Do not invent timelines.
+- Do not invent policies.
+- Do not make guarantees.
+
+If required information is unavailable, clearly state that the information is not currently available and, when appropriate, suggest contacting Quantiro or requesting a demo.
+
+---
+
+# Important Retrieval Guidance
+
+This document is the primary high-level overview of Quantiro.
+
+For broad questions such as:
+
+- What are your services?
+- What services do you offer?
+- What does Quantiro do?
+- What does Quantiro offer?
+- Tell me about Quantiro.
+- What can you help me with?
+
+use the "Main Quantiro Offerings" section to provide an overview of all major offerings.
+
+Do not use a detailed single-service document as the only source for a broad business-overview question.
+
+For detailed questions about a specific service, retrieve the relevant detailed knowledge-base document as well.
+```
